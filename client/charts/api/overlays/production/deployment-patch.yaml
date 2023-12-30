@@ -1,0 +1,42 @@
+- op: replace
+  path: /spec/template/spec/tolerations
+  value:
+    - key: Environment
+      operator: Equal
+      value: production
+      effect: NoSchedule
+    - key: Application
+      operator: Equal
+      value: integrate
+      effect: NoSchedule
+    - key: Pod
+      operator: Equal
+      value: api
+      effect: NoSchedule
+- op: replace
+  path: /spec/template/spec/containers/0/resources
+  value:
+    requests:
+      cpu: '0.5'
+      memory: 1Gi
+    limits:
+      memory: 2Gi
+- op: replace
+  path: /spec/template/spec/volumes/0/csi/volumeAttributes/secretProviderClass
+  value: production-api-secrets
+- op: add
+  path: /spec/template/spec/containers/0/env
+  value:
+    - name: AWS_DEFAULT_REGION
+      value: us-gov-west-1
+    - name: HMACSecret
+      value: production-secret
+    - name: RedisHost
+      value: production-redis-storage-0.production-redis-service.production-integrate.svc.cluster.local
+- op: replace
+  path: /spec/template/spec/containers/0/image
+  value: 769829582037.dkr.ecr.us-gov-west-1.amazonaws.com/api:latest
+- op: add
+  path: /spec/template/metadata/annotations
+  value:
+    iam.amazonaws.com/role: arn:aws-us-gov:iam::769829582037:role/eks-node-role

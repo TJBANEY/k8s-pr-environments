@@ -1,0 +1,26 @@
+name: Continuous Integration
+
+on: [push]
+
+jobs:
+  setup-pr-environment:
+    runs-on: ubuntu-latest
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint.
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup AWS CLI
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::111111111111:role/gh-actions-role
+          aws-region: us-east-1
+      - name: Connect to EKS cluster
+        run: aws eks --region us-west-2 update-kubeconfig --name <your-cluster-name>
+      - name: Create and setup PR environment
+        run: |
+          PR_ID=$(cat $GITHUB_EVENT_PATH | jq -r ".number")
+          kubectl create namespace pr-env-$PR_ID
+          # further commands to setup your environment...

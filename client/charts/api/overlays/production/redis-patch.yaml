@@ -1,0 +1,15 @@
+- op: add
+  path: /spec/template/spec/tolerations
+  value:
+    - key: Environment
+      operator: Equal
+      value: production
+      effect: NoSchedule
+    - key: Application
+      operator: Equal
+      value: integrate
+      effect: NoSchedule
+    - key: Pod
+      operator: Equal
+      value: api
+      effect: NoSchedule

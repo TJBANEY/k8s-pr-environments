@@ -1,0 +1,30 @@
+- op: replace
+  path: /spec/template/spec/tolerations
+  value:
+    - key: Environment
+      operator: Equal
+      value: production
+      effect: NoSchedule
+    - key: Application
+      operator: Equal
+      value: integrate
+      effect: NoSchedule
+    - key: Pod
+      operator: Equal
+      value: app
+      effect: NoSchedule
+- op: replace
+  path: /spec/template/spec/containers/0/resources
+  value:
+    requests:
+      cpu: '0.5'
+      memory: 1Gi
+    limits:
+      memory: 2Gi
+- op: replace
+  path: /spec/template/spec/containers/0/image
+  value: 769829582037.dkr.ecr.us-gov-west-1.amazonaws.com/client:latest
+- op: add
+  path: /spec/template/metadata/annotations
+  value:
+    iam.amazonaws.com/role: arn:aws-us-gov:iam::769829582037:role/eks-node-role

@@ -1,0 +1,49 @@
+#file: noinspection KubernetesMissingKeys
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  template:
+    metadata:
+      annotations:
+        iam.amazonaws.com/role: arn:aws:iam::$AWS_ACCOUNT:role/EKSNodeRole
+    spec:
+      serviceAccountName: api-service-account
+      terminationGracePeriodSeconds: 65
+      containers:
+        - name: api
+          image: $AWS_ACCOUNT.dkr.ecr.us-east-2.amazonaws.com/api:latest
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: api-secrets
+              mountPath: '/mnt/api-secrets'
+              readOnly: true
+          env: []
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: 100m
+              memory: 500Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 300
+            timeoutSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            timeoutSeconds: 10
+      volumes:
+        - name: api-secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: api-secrets

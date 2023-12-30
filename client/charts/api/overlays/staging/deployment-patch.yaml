@@ -1,0 +1,43 @@
+- op: replace
+  path: /spec/template/spec/tolerations
+  value:
+    - key: Environment
+      operator: Equal
+      value: staging
+      effect: NoSchedule
+- op: replace
+  path: /spec/template/spec/containers/0/resources
+  value:
+    requests:
+      cpu: 100m
+      memory: 500Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+- op: replace
+  path: /spec/template/spec/volumes/0/csi/volumeAttributes/secretProviderClass
+  value: staging-api-secrets
+- op: add
+  path: /spec/template/spec/containers/0/env
+  value:
+    - name: AWS_DEFAULT_REGION
+      value: us-west-2
+    - name: HMACSecret
+      value: staging-secret
+    - name: RedisHost
+      value: staging-redis-storage-0.staging-redis-service.staging-integrate.svc.cluster.local
+    - name: PostgresUsername
+      valueFrom:
+        secretKeyRef:
+          name: postgres-credentials
+          key: username
+    - name: PostgresPassword
+      valueFrom:
+        secretKeyRef:
+          name: postgres-credentials
+          key: password
+    - name: PostgresHost
+      valueFrom:
+        secretKeyRef:
+          name: postgres-credentials
+          key: host

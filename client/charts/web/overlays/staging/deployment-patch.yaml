@@ -1,0 +1,16 @@
+- op: replace
+  path: /spec/template/spec/tolerations
+  value:
+    - key: Environment
+      operator: Equal
+      value: staging
+      effect: NoSchedule
+- op: replace
+  path: /spec/template/spec/containers/0/resources
+  value:
+    requests:
+      cpu: 100m
+      memory: 500Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi

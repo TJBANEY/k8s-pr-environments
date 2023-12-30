@@ -1,0 +1,37 @@
+
+
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: staging-integrate
+
+namePrefix: staging-
+
+commonLabels:
+  app: api
+  environment: staging
+
+resources:
+- ../../base
+- autoscaler.yaml
+- secrets.yaml
+- service-account.yaml
+
+patchesJson6902:
+- path: deployment-patch.yaml
+  target:
+    kind: Deployment
+    name: api
+- path: ingress-patch.yaml
+  target:
+    kind: Ingress
+    name: api-ingress
+- path: redis-patch.yaml
+  target:
+    kind: StatefulSet
+    name: redis-storage
+
+images:
+- name: 709934657297.dkr.ecr.us-west-2.amazonaws.com/api-pr
+  newTag: "1"

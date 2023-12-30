@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client
+spec:
+  template:
+    metadata:
+      annotations:
+        iam.amazonaws.com/role: arn:aws:iam::709934657297:role/EKSNodeRole
+    spec:
+      terminationGracePeriodSeconds: 65
+      containers:
+        - name: client
+          image: 709934657297.dkr.ecr.us-west-2.amazonaws.com/client:latest
+          imagePullPolicy: Always
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: AWS_DEFAULT_REGION
+              value: 'us-west-2'
+            - name: REGION
+              value: 'us-west-2'
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 100m
+              memory: 500Mi
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            successThreshold: 1
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            successThreshold: 1
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
